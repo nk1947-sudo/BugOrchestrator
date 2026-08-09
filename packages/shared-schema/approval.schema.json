@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aegis-mesh/schemas/approval.schema.json",
+  "title": "Approval",
+  "description": "A pending/decided human-in-the-loop gate on a high-impact action. Mirrors services/api/src/api/models.py::Approval.",
+  "type": "object",
+  "required": ["id", "scan_id", "target_id", "category", "action_description", "status", "requested_at"],
+  "properties": {
+    "id": { "type": "string", "format": "uuid" },
+    "scan_id": { "type": "string", "format": "uuid" },
+    "target_id": { "type": "string", "format": "uuid" },
+    "category": {
+      "type": "string",
+      "enum": ["admin_access", "destructive_state_change", "aggressive_payload", "waf_bypass"],
+      "description": "Categories listed in HITL_REQUIRED_CATEGORIES (.env) always produce an Approval before EXECUTE."
+    },
+    "action_description": { "type": "string", "minLength": 1 },
+    "planned_request": { "type": ["string", "null"] },
+    "status": { "type": "string", "enum": ["pending", "approved", "rejected", "expired"] },
+    "requested_at": { "type": "string", "format": "date-time" },
+    "decided_at": { "type": ["string", "null"], "format": "date-time" },
+    "decision_note": { "type": ["string", "null"] }
+  }
+}

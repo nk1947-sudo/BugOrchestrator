@@ -216,3 +216,39 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# ==============================================================================
+# Aegis Mesh project-specific
+# ==============================================================================
+
+# Node / Next.js (apps/dashboard)
+node_modules/
+.next/
+out/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-store/
+*.tsbuildinfo
+next-env.d.ts
+
+# Go (services/scan-worker)
+services/scan-worker/bin/
+*.exe
+*.test
+
+# Local runtime artifacts - never committed, never auto-committed by any service
+workspace/findings/*
+!workspace/findings/.gitkeep
+workspace/state.json
+workspace/*.log
+
+# Docker
+*.pid
+
+# IDE
+.idea/
+.vscode/
+
+.claude/
+/claude

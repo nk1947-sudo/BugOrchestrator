@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aegis-mesh/schemas/scan.schema.json",
+  "title": "Scan",
+  "description": "One orchestrator run against a Target. Mirrors services/api/src/api/models.py::Scan.",
+  "type": "object",
+  "required": ["id", "target_id", "stage", "created_at", "updated_at"],
+  "properties": {
+    "id": { "type": "string", "format": "uuid" },
+    "target_id": { "type": "string", "format": "uuid" },
+    "stage": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "observe",
+        "reason",
+        "plan",
+        "execute",
+        "verify",
+        "awaiting_approval",
+        "done",
+        "failed"
+      ]
+    },
+    "summary": { "type": ["string", "null"] },
+    "error": { "type": ["string", "null"] },
+    "started_at": { "type": ["string", "null"], "format": "date-time" },
+    "finished_at": { "type": ["string", "null"], "format": "date-time" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" }
+  }
+}

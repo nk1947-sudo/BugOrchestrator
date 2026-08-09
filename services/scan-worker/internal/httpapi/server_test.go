@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"aegis-mesh/scan-worker/internal/models"
+	"bugorchestrator/scan-worker/internal/models"
 )
 
 func testServer() *Server {

@@ -116,9 +116,14 @@ class ScanRun:
             hypotheses = await self._reason(observed)
             actions = await self._plan(hypotheses)
             await self._execute_and_verify(actions)
-            await self.api.update_scan(
-                self.scan_id, stage="done", summary=f"{len(actions)} action(s) evaluated"
-            )
+            if self.target.get("passive_only", True):
+                summary = (
+                    f"passive_only target - {len(actions)} action(s) planned but none dispatched "
+                    "(no request sent to the target)"
+                )
+            else:
+                summary = f"{len(actions)} action(s) evaluated"
+            await self.api.update_scan(self.scan_id, stage="done", summary=summary)
         except Exception as exc:  # noqa: BLE001 - top-level run boundary; failure must not crash the poller
             logger.exception("scan %s failed", self.scan_id)
             await self.api.update_scan(self.scan_id, stage="failed", error=str(exc))
@@ -150,16 +155,21 @@ class ScanRun:
             }
             observed.routes.extend(outcome.data.get("routes", []))
 
-        httpx_result = await self.worker.run_httpx([self.target["base_url"]])
-        if httpx_result.get("available"):
-            for r in httpx_result.get("results", []):
-                observed.stack_fingerprint["httpx"] = {
-                    "webserver": r.get("webserver"),
-                    "tech": r.get("tech"),
-                    "title": r.get("title"),
-                }
+        if self.target.get("passive_only", True):
+            observed.notes.append(
+                "target is passive_only - skipped scan-worker httpx probe (no request sent to the target)"
+            )
         else:
-            observed.notes.append(f"scan-worker httpx: unavailable ({httpx_result.get('error', 'n/a')})")
+            httpx_result = await self.worker.run_httpx([self.target["base_url"]])
+            if httpx_result.get("available"):
+                for r in httpx_result.get("results", []):
+                    observed.stack_fingerprint["httpx"] = {
+                        "webserver": r.get("webserver"),
+                        "tech": r.get("tech"),
+                        "title": r.get("title"),
+                    }
+            else:
+                observed.notes.append(f"scan-worker httpx: unavailable ({httpx_result.get('error', 'n/a')})")
 
         return observed
 
@@ -177,6 +187,13 @@ class ScanRun:
 
     async def _execute_and_verify(self, actions: list[PlannedAction]) -> None:
         if not actions:
+            return
+        if self.target.get("passive_only", True):
+            logger.info(
+                "target %s is passive_only - skipping EXECUTE for %d planned action(s)",
+                self.target["id"],
+                len(actions),
+            )
             return
         await self.api.update_scan(self.scan_id, stage="execute")
 

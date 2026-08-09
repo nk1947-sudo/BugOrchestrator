@@ -5,7 +5,7 @@ import { AuthProvider } from "@/lib/auth-context";
 import { AppShell } from "@/components/AppShell";
 
 export const metadata: Metadata = {
-  title: "Aegis Mesh",
+  title: "BugOrchestrator",
   description: "Authorized security-testing orchestration dashboard",
 };
 

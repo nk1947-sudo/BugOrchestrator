@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"aegis-mesh/scan-worker/internal/models"
+	"bugorchestrator/scan-worker/internal/models"
 )
 
 type nucleiJSONLine struct {

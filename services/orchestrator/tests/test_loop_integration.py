@@ -80,6 +80,7 @@ async def test_idor_flow_confirmed_and_reported(tmp_path):
         "name": "demo",
         "base_url": "https://target.test",
         "credentials": {"user_a": {}, "user_b": {}},
+        "passive_only": False,
     }
     _approvals_route, findings_route = _mock_common("s1", "appr1", "approved")
 
@@ -123,6 +124,7 @@ async def test_idor_flow_skipped_when_approval_rejected(tmp_path):
         "name": "demo",
         "base_url": "https://target.test",
         "credentials": {"user_a": {}, "user_b": {}},
+        "passive_only": False,
     }
     _approvals_route, findings_route = _mock_common("s2", "appr2", "rejected")
 
@@ -145,7 +147,13 @@ async def test_idor_flow_skipped_when_approval_rejected(tmp_path):
 @respx.mock
 async def test_access_control_bypass_flow(tmp_path):
     scan = {"id": "s3", "target_id": "t1"}
-    target = {"id": "t1", "name": "demo", "base_url": "https://target.test", "credentials": {}}
+    target = {
+        "id": "t1",
+        "name": "demo",
+        "base_url": "https://target.test",
+        "credentials": {},
+        "passive_only": False,
+    }
     approvals_route, findings_route = _mock_common("s3", "appr3", "approved")
 
     # Specific (header-matched) routes must be registered before the
@@ -179,6 +187,61 @@ async def test_access_control_bypass_flow(tmp_path):
     assert len(confirmed) == 2  # origin_header_spoof + method_override succeed
     assert len(unconfirmed) == 1  # double-slash mutation still denied
     assert all(b["category"] == "broken_access_control" for b in bodies)
+
+    await api.aclose()
+    await worker.aclose()
+
+
+@pytest.mark.asyncio
+@respx.mock
+async def test_passive_only_target_never_contacts_worker_or_target(tmp_path):
+    """The core safety guarantee behind passive_only: even with routes that
+    would otherwise generate a hypothesis -> planned action, the OBSERVE
+    httpx probe and every EXECUTE dispatch must be skipped - no HTTP request
+    to the scan-worker or the target itself, no approval, no finding."""
+    scan = {"id": "s4", "target_id": "t1"}
+    target = {
+        "id": "t1",
+        "name": "demo",
+        "base_url": "https://target.test",
+        "credentials": {"user_a": {}, "user_b": {}},
+        "passive_only": True,
+    }
+    scan_patch = respx.route(method="PATCH", url="http://api.test/scans/s4").mock(
+        return_value=httpx.Response(200, json={"id": "s4", "stage": "x"})
+    )
+    approvals_route = respx.post("http://api.test/approvals").mock(
+        return_value=httpx.Response(201, json={"id": "should-not-be-called", "status": "pending"})
+    )
+    findings_route = respx.post("http://api.test/findings").mock(
+        return_value=httpx.Response(201, json={"id": "should-not-be-called"})
+    )
+    worker_httpx_route = respx.post("http://worker.test/scan/httpx").mock(
+        return_value=httpx.Response(200, json={"available": True, "success": True, "results": []})
+    )
+    target_route = respx.route(url__regex=r"https://target\.test/.*").mock(
+        return_value=httpx.Response(200, text="should never be reached")
+    )
+
+    settings = _settings(tmp_path)
+    api = ApiClient(settings)
+    worker = ScanWorkerClient(settings)
+    cooldowns = CooldownTracker(60)
+    # Same route shape that triggers a real IDOR hypothesis in the active test.
+    connector = FakeConnector([DiscoveredRoute(method="GET", path="/api/v1/orders/123")])
+
+    run = ScanRun(scan, target, settings, api, worker, cooldowns, connectors=[connector])
+    await run.run()
+
+    assert worker_httpx_route.call_count == 0
+    assert target_route.call_count == 0
+    assert approvals_route.call_count == 0
+    assert findings_route.call_count == 0
+
+    patch_bodies = [_body(c.request) for c in scan_patch.calls]
+    done_bodies = [b for b in patch_bodies if b.get("stage") == "done"]
+    assert len(done_bodies) == 1
+    assert "passive_only" in done_bodies[0]["summary"]
 
     await api.aclose()
     await worker.aclose()

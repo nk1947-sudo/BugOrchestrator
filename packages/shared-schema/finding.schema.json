@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://aegis-mesh/schemas/finding.schema.json",
+  "$id": "https://bugorchestrator/schemas/finding.schema.json",
   "title": "Finding",
   "description": "A confirmed or unconfirmed result from the VERIFY stage. Mirrors services/api/src/api/models.py::Finding.",
   "type": "object",

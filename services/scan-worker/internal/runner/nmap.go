@@ -5,7 +5,7 @@ import (
 	"encoding/xml"
 	"time"
 
-	"aegis-mesh/scan-worker/internal/models"
+	"bugorchestrator/scan-worker/internal/models"
 )
 
 type nmapXMLRun struct {

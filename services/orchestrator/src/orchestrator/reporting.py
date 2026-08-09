@@ -42,7 +42,7 @@ def write_finding_report(
 - **Target:** `{target_name}`
 - **Severity:** `{severity}`{cvss_line}
 - **Vulnerability Category:** `{category}`
-- **Discovered Via:** Aegis Mesh orchestrator (automated probe, human-approved via HITL gate)
+- **Discovered Via:** BugOrchestrator (automated probe, human-approved via HITL gate)
 
 ## Executive Summary
 

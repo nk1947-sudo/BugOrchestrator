@@ -21,6 +21,8 @@ const COLORS: Record<string, string> = {
   destructive_state_change: "badge-critical",
   aggressive_payload: "badge-high",
   waf_bypass: "badge-critical",
+  "mode: passive": "badge-ok",
+  "mode: active": "badge-high",
 };
 
 export function Badge({ value }: { value: string }) {

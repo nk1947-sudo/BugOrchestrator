@@ -1,10 +1,10 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://aegis-mesh/schemas/target.schema.json",
+  "$id": "https://bugorchestrator/schemas/target.schema.json",
   "title": "Target",
   "description": "A target injected for authorized security testing. Mirrors services/api/src/api/models.py::Target.",
   "type": "object",
-  "required": ["id", "name", "base_url", "authorization_note", "status", "created_at", "updated_at"],
+  "required": ["id", "name", "base_url", "authorization_note", "passive_only", "status", "created_at", "updated_at"],
   "properties": {
     "id": { "type": "string", "format": "uuid" },
     "name": { "type": "string", "minLength": 1, "maxLength": 255 },
@@ -13,6 +13,11 @@
       "type": "string",
       "minLength": 10,
       "description": "Program name, ticket link, or ownership statement. Required, recorded for audit, not independently verified."
+    },
+    "passive_only": {
+      "type": "boolean",
+      "default": true,
+      "description": "When true, the orchestrator never sends a request to this target - only third-party OSINT (Shodan/Censys) runs. Must be explicitly disabled per-target."
     },
     "status": { "type": "string", "enum": ["active", "paused", "archived"] },
     "created_at": { "type": "string", "format": "date-time" },

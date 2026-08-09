@@ -6,7 +6,7 @@
 	test lint
 
 help:
-	@echo "Aegis Mesh - common targets"
+	@echo "BugOrchestrator - common targets"
 	@echo "  make up                  - docker compose up --build (full stack)"
 	@echo "  make down                - docker compose down"
 	@echo "  make logs                - tail all service logs"

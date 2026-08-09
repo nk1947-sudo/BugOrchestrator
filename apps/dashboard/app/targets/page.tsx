@@ -15,6 +15,7 @@ function TargetsContent() {
   const [name, setName] = useState("");
   const [baseUrl, setBaseUrl] = useState("");
   const [authNote, setAuthNote] = useState("");
+  const [passiveOnly, setPassiveOnly] = useState(true);
 
   function load() {
     api
@@ -31,10 +32,16 @@ function TargetsContent() {
     setFormError(null);
     setSubmitting(true);
     try {
-      await api.createTarget({ name, base_url: baseUrl, authorization_note: authNote });
+      await api.createTarget({
+        name,
+        base_url: baseUrl,
+        authorization_note: authNote,
+        passive_only: passiveOnly,
+      });
       setName("");
       setBaseUrl("");
       setAuthNote("");
+      setPassiveOnly(true);
       load();
     } catch (err) {
       setFormError(err instanceof ApiError ? err.message : "Failed to create target");
@@ -49,6 +56,27 @@ function TargetsContent() {
       window.alert("Scan queued - the orchestrator picks it up on its next poll cycle.");
     } catch (err) {
       window.alert(err instanceof ApiError ? err.message : "Failed to start scan");
+    }
+  }
+
+  async function handleToggleMode(target: Target) {
+    const goingActive = target.passive_only;
+    if (
+      goingActive &&
+      !window.confirm(
+        `Switch "${target.name}" to ACTIVE mode? The orchestrator will start sending real ` +
+          "requests to it (recon probes, and - once approved via the HITL queue - active " +
+          "tests). Only do this if you've confirmed the target's authorization explicitly " +
+          "permits automated scanning."
+      )
+    ) {
+      return;
+    }
+    try {
+      await api.updateTarget(target.id, { passive_only: !target.passive_only });
+      load();
+    } catch (err) {
+      window.alert(err instanceof ApiError ? err.message : "Failed to update target");
     }
   }
 
@@ -87,6 +115,15 @@ function TargetsContent() {
             minLength={10}
           />
         </label>
+        <label className="checkbox-label">
+          <input
+            type="checkbox"
+            checked={passiveOnly}
+            onChange={(e) => setPassiveOnly(e.target.checked)}
+          />
+          Passive only - no automated scanning (recommended; uncheck only once you&rsquo;ve
+          confirmed the target&rsquo;s authorization explicitly permits automated scanning)
+        </label>
         {formError && <div className="form-error">{formError}</div>}
         <button type="submit" className="btn-primary" disabled={submitting}>
           {submitting ? "Adding…" : "Inject target"}
@@ -104,6 +141,7 @@ function TargetsContent() {
               <th>Name</th>
               <th>Base URL</th>
               <th>Status</th>
+              <th>Mode</th>
               <th>Created</th>
               <th />
             </tr>
@@ -116,8 +154,11 @@ function TargetsContent() {
                 <td>
                   <Badge value={t.status} />
                 </td>
-                <td>{new Date(t.created_at).toLocaleString()}</td>
                 <td>
+                  <Badge value={t.passive_only ? "mode: passive" : "mode: active"} />
+                </td>
+                <td>{new Date(t.created_at).toLocaleString()}</td>
+                <td className="row-actions">
                   <button
                     className="btn-secondary"
                     onClick={() => handleStartScan(t.id)}
@@ -125,12 +166,15 @@ function TargetsContent() {
                   >
                     Start scan
                   </button>
+                  <button className="btn-secondary" onClick={() => handleToggleMode(t)}>
+                    {t.passive_only ? "Enable active scanning" : "Switch to passive"}
+                  </button>
                 </td>
               </tr>
             ))}
             {targets.length === 0 && (
               <tr>
-                <td colSpan={5} className="empty-row">
+                <td colSpan={6} className="empty-row">
                   No targets yet
                 </td>
               </tr>

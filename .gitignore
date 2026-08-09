@@ -218,7 +218,7 @@ __marimo__/
 .streamlit/secrets.toml
 
 # ==============================================================================
-# Aegis Mesh project-specific
+# BugOrchestrator project-specific
 # ==============================================================================
 
 # Node / Next.js (apps/dashboard)

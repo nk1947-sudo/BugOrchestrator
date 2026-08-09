@@ -24,7 +24,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="shell">
       <aside className="sidebar">
-        <div className="brand">Aegis Mesh</div>
+        <div className="brand">BugOrchestrator</div>
         <nav>
           {NAV.map((item) => (
             <Link

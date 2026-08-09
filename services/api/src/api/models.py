@@ -101,6 +101,14 @@ class Target(Base):
     # In a real deployment this should be a reference into a secrets manager,
     # not raw material - flagged in docs/ARCHITECTURE.md as a follow-up.
     credentials: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    # When true (the default for new targets), the orchestrator never sends a
+    # single packet to this target: no scan-worker httpx/nmap/nuclei probe in
+    # OBSERVE, no differential/bypass dispatch in EXECUTE. Only third-party
+    # OSINT (Shodan/Censys, which query their own databases, not the target)
+    # runs. Exists for programs like bug bounty VDPs that permit manual
+    # testing but explicitly prohibit automated scanners - see
+    # docs/ARCHITECTURE.md "Scope & authorization".
+    passive_only: Mapped[bool] = mapped_column(default=True)
     status: Mapped[TargetStatus] = mapped_column(_enum(TargetStatus), default=TargetStatus.active)
     created_by: Mapped[str | None] = mapped_column(String(36), ForeignKey("users.id"), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

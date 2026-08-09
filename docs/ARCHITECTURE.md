@@ -1,6 +1,6 @@
-# Aegis Mesh - Architecture
+# BugOrchestrator - Architecture
 
-Aegis Mesh is an authorized-security-testing orchestration platform. An operator
+BugOrchestrator is an authorized-security-testing orchestration platform. An operator
 injects a target (a domain, host, or API base URL they are authorized to test)
 through the dashboard or API; the orchestrator runs a bounded reasoning loop
 against it, using pluggable connectors to recon/scan tooling; any action
@@ -88,6 +88,20 @@ against any external source (there is no such general-purpose API); it exists
 so scope is recorded and auditable, and so a target can't be scheduled by
 accident with no scope note at all. Operators are responsible for only
 injecting targets they are actually authorized to test.
+
+`Target.passive_only` (default `true` for every new target) is a second,
+independent gate: while set, the orchestrator never sends a single request
+to the target - `loop.py::_observe` skips the scan-worker `httpx` probe and
+`loop.py::_execute_and_verify` refuses to dispatch any planned action,
+regardless of what OBSERVE/REASON/PLAN produced. Only third-party OSINT
+(Shodan/Censys, which query their own databases, never the target) still
+runs. This exists because "I have authorization to test this" and "this
+program permits *automated* scanning" are different questions - many bug
+bounty VDPs explicitly prohibit automated scanners while still permitting
+(and rewarding) manual testing. An operator must explicitly flip a target to
+`passive_only: false` - via the dashboard's "Enable active scanning" toggle,
+with a confirmation prompt - only once they've confirmed the target's actual
+authorization covers automated tooling, not just manual testing.
 
 ## Human-in-the-loop (HITL) gate
 

@@ -18,6 +18,7 @@ async def create_target(payload: TargetCreate, db: DbSession, current_user: Curr
         base_url=payload.base_url,
         authorization_note=payload.authorization_note,
         credentials=payload.credentials,
+        passive_only=payload.passive_only,
         created_by=current_user.id,
     )
     db.add(target)
@@ -49,6 +50,8 @@ async def update_target(
         raise HTTPException(status_code=404, detail="Target not found")
     if payload.status is not None:
         target.status = payload.status
+    if payload.passive_only is not None:
+        target.passive_only = payload.passive_only
     await db.commit()
     await db.refresh(target)
     return target

@@ -51,7 +51,7 @@ function OverviewContent() {
   return (
     <div>
       <h1>Overview</h1>
-      <p className="muted">Aegis Mesh authorized security-testing orchestration platform.</p>
+      <p className="muted">BugOrchestrator authorized security-testing orchestration platform.</p>
       {error && <div className="form-error">{error}</div>}
       {!loading && (
         <div className="stat-grid">

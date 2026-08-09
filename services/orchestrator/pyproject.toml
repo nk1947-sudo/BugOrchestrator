@@ -1,7 +1,7 @@
 [project]
-name = "aegis-mesh-orchestrator"
+name = "bugorchestrator-orchestrator"
 version = "0.1.0"
-description = "Aegis Mesh orchestration engine - the observe/reason/plan/execute/verify loop"
+description = "BugOrchestrator orchestration engine - the observe/reason/plan/execute/verify loop"
 requires-python = ">=3.11"
 dependencies = [
     "httpx>=0.27,<1.0",

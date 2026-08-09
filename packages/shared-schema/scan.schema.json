@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://aegis-mesh/schemas/scan.schema.json",
+  "$id": "https://bugorchestrator/schemas/scan.schema.json",
   "title": "Scan",
   "description": "One orchestrator run against a Target. Mirrors services/api/src/api/models.py::Scan.",
   "type": "object",

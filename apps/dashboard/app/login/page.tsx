@@ -29,7 +29,7 @@ export default function LoginPage() {
 
   return (
     <div className="auth-card">
-      <h1>Aegis Mesh</h1>
+      <h1>BugOrchestrator</h1>
       <p className="muted">Sign in to continue</p>
       <form onSubmit={handleSubmit}>
         <label>

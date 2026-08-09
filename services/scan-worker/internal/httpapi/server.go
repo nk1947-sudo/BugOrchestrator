@@ -11,8 +11,8 @@ import (
 	"net/http"
 	"time"
 
-	"aegis-mesh/scan-worker/internal/models"
-	"aegis-mesh/scan-worker/internal/runner"
+	"bugorchestrator/scan-worker/internal/models"
+	"bugorchestrator/scan-worker/internal/runner"
 )
 
 type Config struct {

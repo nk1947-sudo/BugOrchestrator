@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	"aegis-mesh/scan-worker/internal/httpapi"
+	"bugorchestrator/scan-worker/internal/httpapi"
 )
 
 func env(key, fallback string) string {
@@ -54,7 +54,7 @@ func main() {
 		ReadHeaderTimeout: 10 * time.Second,
 	}
 
-	log.Printf("aegis-mesh scan-worker listening on %s (max_concurrency=%d, default_timeout=%s)", addr, maxConcurrency, cfg.DefaultTimeout)
+	log.Printf("bugorchestrator scan-worker listening on %s (max_concurrency=%d, default_timeout=%s)", addr, maxConcurrency, cfg.DefaultTimeout)
 	if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatalf("server error: %v", err)
 	}

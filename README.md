@@ -1,4 +1,4 @@
-# Aegis Mesh
+# BugOrchestrator
 
 An authorized-security-testing orchestration platform: inject a target you're
 authorized to test, and a bounded reasoning loop (observe -> reason -> plan ->

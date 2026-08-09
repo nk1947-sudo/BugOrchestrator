@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://aegis-mesh/schemas/approval.schema.json",
+  "$id": "https://bugorchestrator/schemas/approval.schema.json",
   "title": "Approval",
   "description": "A pending/decided human-in-the-loop gate on a high-impact action. Mirrors services/api/src/api/models.py::Approval.",
   "type": "object",

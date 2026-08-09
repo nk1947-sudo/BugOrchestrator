@@ -50,6 +50,15 @@ class TargetCreate(BaseModel):
         ),
     )
     credentials: dict | None = None
+    passive_only: bool = Field(
+        default=True,
+        description=(
+            "When true (default), the orchestrator never sends a request to this "
+            "target - only third-party OSINT (Shodan/Censys) runs. Set to false only "
+            "once you've confirmed the target's authorization explicitly permits "
+            "automated scanning."
+        ),
+    )
 
     @field_validator("authorization_note")
     @classmethod
@@ -61,6 +70,7 @@ class TargetCreate(BaseModel):
 
 class TargetUpdate(BaseModel):
     status: TargetStatus | None = None
+    passive_only: bool | None = None
 
 
 class TargetOut(BaseModel):
@@ -70,6 +80,7 @@ class TargetOut(BaseModel):
     name: str
     base_url: str
     authorization_note: str
+    passive_only: bool
     status: TargetStatus
     created_at: datetime
     updated_at: datetime

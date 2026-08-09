@@ -26,10 +26,34 @@ async def test_create_and_list_target(client, auth_headers):
     body = resp.json()
     assert body["status"] == "active"
     assert body["base_url"] == "https://demo.example.test"
+    assert body["passive_only"] is True  # default - no request ever sent without opt-out
 
     listed = await client.get("/targets", headers=auth_headers)
     assert listed.status_code == 200
     assert any(t["id"] == body["id"] for t in listed.json())
+
+
+@pytest.mark.asyncio
+async def test_passive_only_can_be_disabled_on_create_and_toggled_later(client, auth_headers):
+    resp = await client.post(
+        "/targets",
+        json={
+            "name": "own-lab",
+            "base_url": "https://lab.example.test",
+            "authorization_note": "Personal lab environment I own",
+            "passive_only": False,
+        },
+        headers=auth_headers,
+    )
+    assert resp.status_code == 201, resp.text
+    target_id = resp.json()["id"]
+    assert resp.json()["passive_only"] is False
+
+    toggled = await client.patch(
+        f"/targets/{target_id}", json={"passive_only": True}, headers=auth_headers
+    )
+    assert toggled.status_code == 200
+    assert toggled.json()["passive_only"] is True
 
 
 @pytest.mark.asyncio
